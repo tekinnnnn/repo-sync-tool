@@ -11,7 +11,7 @@ if [ -z "$CONFIG_INCLUDED" ]; then
   readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 
   # User config file location
-  readonly CONFIG_FILE="${SCRIPT_DIR}/repo-sync.conf"
+  readonly CONFIG_FILE="${HOME}/.repo-sync.conf"
   
   # Status codes
   readonly STATUS_SUCCESS=0
@@ -100,8 +100,13 @@ load_config() {
       RUN_AFTER_PULL)
         # Split space-separated groups
         RUN_AFTER_PULL=()
-        for group in $value; do
-          RUN_AFTER_PULL+=("$group")
+        # Use read with custom IFS to properly split by spaces
+        IFS=' ' read -ra script_groups <<< "$value"
+        for group in "${script_groups[@]}"; do
+          # Only add non-empty groups
+          if [ -n "$group" ]; then
+            RUN_AFTER_PULL+=("$group")
+          fi
         done
         ;;
       MAX_CONNECT_ATTEMPTS)
@@ -190,7 +195,7 @@ SSH_CONNECTION=$(echo "$SSH_CONNECTION" | sed -E 's/Enter the SSH connection str
 # Scripts to run after pull (space-separated groups with comma-separated alternatives)
 # Example: "sync,syncAll fire_webhook" - First try sync OR syncAll, then try fire_webhook
 # Leave empty to skip running any scripts
-RUN_AFTER_PULL=$(printf "%s " "${RUN_AFTER_PULL[@]}" | sed 's/Scripts to run after pull \[[^]]*\]:*//g' | sed 's/^ *//;s/ *$//')
+RUN_AFTER_PULL=$(printf "%s " "${RUN_AFTER_PULL[@]}" | sed 's/^ *//;s/ *$//')
 
 # Maximum number of attempts to connect to remote server
 MAX_CONNECT_ATTEMPTS=${MAX_CONNECT_ATTEMPTS}
@@ -278,5 +283,8 @@ initialize_config() {
   fi
 }
 
-# Call the initialization function
-initialize_config
+# Only initialize config automatically if this file is being executed directly
+# This prevents double-loading when the file is sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  initialize_config
+fi
