@@ -22,8 +22,8 @@ fi
 # Default configuration values
 # These values will be used if no config file exists
 
-# Base repository path (default)
-DEFAULT_REPO_BASE_PATH="${HOME}/repos"
+# Base repository path (default - current working directory)
+DEFAULT_REPO_BASE_PATH="$(pwd)"
 
 # Default repositories to sync (will be populated from config file or init wizard)
 DEFAULT_REPOS=()
