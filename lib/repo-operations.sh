@@ -419,6 +419,27 @@ pull_latest_changes() {
   
   log_info "Fetch successful, now performing pull with rebase..."
   
+  # Debugging: Show what we're about to pull
+  git_remote_info=$(git rev-parse --abbrev-ref @{upstream} 2>/dev/null || echo "No upstream branch set")
+  git_local_sha=$(git rev-parse HEAD)
+  git_remote_sha=$(git rev-parse $target_remote/$target_branch 2>/dev/null || echo "Cannot get remote SHA")
+  log_info "Current tracking: $git_remote_info"
+  log_info "Local SHA: $git_local_sha"
+  log_info "Remote SHA ($target_remote/$target_branch): $git_remote_sha"
+  
+  # Check for actual differences between local and remote
+  log_info "Checking for differences between local and remote..."
+  diff_result=$(git diff HEAD $target_remote/$target_branch --name-only)
+  if [ -n "$diff_result" ]; then
+    log_info "Differences found, files to update:"
+    echo "$diff_result" | sed 's/^/  /'
+  else
+    log_info "No file differences detected"
+  fi
+  
+  # Force set upstream if needed
+  git branch --set-upstream-to=$target_remote/$target_branch $target_branch
+  
   # Then perform pull with rebase
   pull_result=$(git pull --rebase $target_remote $target_branch 2>&1)
   pull_status=$?
