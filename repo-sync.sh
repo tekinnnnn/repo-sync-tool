@@ -409,6 +409,8 @@ run_init_wizard() {
   REPO_BASE_PATH="${REPO_BASE_PATH:-$wizard_repo_path}"
   # Expand tilde to home directory if needed
   REPO_BASE_PATH="${REPO_BASE_PATH/#\~/$HOME}"
+  # Remove trailing slash if present
+  REPO_BASE_PATH="${REPO_BASE_PATH%/}"
   echo "Using repository base path: $REPO_BASE_PATH"
   echo
   

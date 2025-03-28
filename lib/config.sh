@@ -24,6 +24,8 @@ fi
 
 # Base repository path (default - current working directory)
 DEFAULT_REPO_BASE_PATH="$(pwd)"
+# Remove trailing slash if present
+DEFAULT_REPO_BASE_PATH="${DEFAULT_REPO_BASE_PATH%/}"
 
 # Default repositories to sync (will be populated from config file or init wizard)
 DEFAULT_REPOS=()
@@ -120,8 +122,10 @@ load_config() {
   
   # Set default values for any variables that weren't set from the config file
   
-  # Repository base path
+  # Repository base path (remove trailing slash if present)
   REPO_BASE_PATH="${REPO_BASE_PATH:-$DEFAULT_REPO_BASE_PATH}"
+  # Remove trailing slash if present
+  REPO_BASE_PATH="${REPO_BASE_PATH%/}"
   
   # Default repositories
   if [ ${#REPOS[@]} -eq 0 ]; then
@@ -157,7 +161,9 @@ load_config() {
 # Returns:
 #   0 always
 set_default_config() {
+  # Set base path and remove trailing slash if present
   REPO_BASE_PATH="$DEFAULT_REPO_BASE_PATH"
+  REPO_BASE_PATH="${REPO_BASE_PATH%/}"
   REPOS=("${DEFAULT_REPOS[@]}")
   REMOTE_NAMES=("${DEFAULT_REMOTE_NAMES[@]}")
   DEFAULT_BRANCH="$DEFAULT_TARGET_BRANCH"
