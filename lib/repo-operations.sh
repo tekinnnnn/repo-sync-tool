@@ -86,13 +86,13 @@ check_remote_server() {
     return 0
   fi
   
-  log_info "Checking if remote server ($SSH_CONNECTION) is online..."
+  log_info "Checking if remote server ($SSH_CONNECTION) is online..." 1
   
   local attempt=1
   local success=false
   
   while [ $attempt -le $MAX_CONNECT_ATTEMPTS ] && [ "$success" = false ]; do
-    log_info "Attempt $attempt of $MAX_CONNECT_ATTEMPTS to connect to remote server..."
+    log_info "Attempt $attempt of $MAX_CONNECT_ATTEMPTS to connect to remote server..." 1
     
     if ssh -o ConnectTimeout=5 -o BatchMode=yes "$SSH_CONNECTION" exit 2>/dev/null; then
       log_success "Remote server ($SSH_CONNECTION) is online"
@@ -100,7 +100,7 @@ check_remote_server() {
       return 0
     else
       if [ $attempt -lt $MAX_CONNECT_ATTEMPTS ]; then
-        log_warning "Remote server not reachable, retrying in $CONNECT_RETRY_WAIT seconds..."
+        log_warning "Remote server not reachable, retrying in $CONNECT_RETRY_WAIT seconds..." 1
         sleep $CONNECT_RETRY_WAIT
       fi
       ((attempt++))
@@ -274,7 +274,7 @@ check_unpushed_commits() {
       
       if [ -n "$unpushed" ]; then
         log_warning "There are unpushed commits, not touching: $repo_path (branch: $current_branch)"
-        log_info "Unpushed commits:"
+        log_info "Unpushed commits:" 1
         echo "${unpushed}" | sed 's/^/  /'
         return 1
       fi
@@ -313,7 +313,7 @@ stash_local_changes() {
     has_changes=true
     log_success "Changes stashed"
   else
-    log_info "No local changes"
+    log_info "No local changes" 1
     has_changes=false
   fi
   
@@ -366,7 +366,7 @@ switch_to_branch() {
   
   # If already on target branch, nothing to do
   if [ "$current_branch" = "$target_branch" ]; then
-    log_info "Already on target branch: $target_branch"
+    log_info "Already on target branch: $target_branch" 1
     return 0
   fi
   

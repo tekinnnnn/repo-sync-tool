@@ -13,6 +13,9 @@ source "$SCRIPT_DIR/lib/repo-operations.sh"
 # Initialize configuration
 initialize_config
 
+# Initialize global verbosity to default level
+GLOBAL_VERBOSITY=0
+
 # Display help information
 # Arguments:
 #   None

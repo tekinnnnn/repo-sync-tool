@@ -27,6 +27,11 @@ CURRENT_LOG_LEVEL=${CURRENT_LOG_LEVEL:-$LOG_LEVEL_INFO}
 # Global verbosity level (0=default, 1=verbose, 2=very verbose)
 GLOBAL_VERBOSITY=${GLOBAL_VERBOSITY:-0}
 
+# Verbosity levels definitions:
+# 0 (default): Only critical information, status updates, errors, warnings
+# 1 (-v): Technical operations progress, repo details, operation summaries
+# 2 (-vv): Full debug information, git command outputs, detailed progress info
+
 # Print a formatted log message with verbosity check
 # Arguments:
 #   $1 - Log level [INFO, SUCCESS, WARNING, ERROR]
@@ -41,7 +46,8 @@ _log() {
   
   # Only print if global verbosity is >= required verbosity
   # ERROR and WARNING messages are always shown regardless of verbosity
-  if [[ "$level" == "ERROR" || "$level" == "WARNING" || $GLOBAL_VERBOSITY -ge $required_verbosity ]]; then
+  # SUCCESS messages are always shown regardless of verbosity
+  if [[ "$level" == "ERROR" || "$level" == "WARNING" || "$level" == "SUCCESS" || $GLOBAL_VERBOSITY -ge $required_verbosity ]]; then
     echo -e "${color}[${level}]${NC} $message"
   fi
 }
@@ -59,36 +65,59 @@ log_info() {
 # Log a success message
 # Arguments:
 #   $1 - Message to log
+#   $2 - Minimum verbosity level required (optional, default 0)
 log_success() {
-  _log "SUCCESS" "$1" "$GREEN"
+  local message="$1"
+  local required_verbosity="${2:-0}"
+  _log "SUCCESS" "$message" "$GREEN" $required_verbosity
 }
 
 # Log a warning message
 # Arguments:
 #   $1 - Message to log
+#   $2 - Minimum verbosity level required (optional, default 0)
 log_warning() {
-  _log "WARNING" "$1" "$YELLOW"
+  local message="$1"
+  local required_verbosity="${2:-0}"
+  _log "WARNING" "$message" "$YELLOW" $required_verbosity
 }
 
 # Log an error message
 # Arguments:
 #   $1 - Message to log
+#   $2 - Minimum verbosity level required (optional, default 0)
 log_error() {
-  _log "ERROR" "$1" "$RED"
+  local message="$1"
+  local required_verbosity="${2:-0}"
+  _log "ERROR" "$message" "$RED" $required_verbosity
 }
 
 # Print a section header with a title
 # Arguments:
 #   $1 - Title of the section
+#   $2 - Minimum verbosity level required (optional, default 0)
 print_section_header() {
-  echo -e "\n${BLUE}=== $1 ===${NC}"
+  local title="$1"
+  local required_verbosity="${2:-0}"
+  
+  # Only print if global verbosity is >= required verbosity
+  if [ $GLOBAL_VERBOSITY -ge $required_verbosity ]; then
+    echo -e "\n${BLUE}=== $title ===${NC}"
+  fi
 }
 
 # Print a separator line
 # Arguments:
 #   $1 - Text to display in the separator
+#   $2 - Minimum verbosity level required (optional, default 0)
 print_separator() {
-  echo -e "\n${BLUE}▓▒░ $1 ░▒▓${NC}"
+  local text="$1"
+  local required_verbosity="${2:-0}"
+  
+  # Only print if global verbosity is >= required verbosity
+  if [ $GLOBAL_VERBOSITY -ge $required_verbosity ]; then
+    echo -e "\n${BLUE}▓▒░ $text ░▒▓${NC}"
+  fi
 }
 
 # Print a colorized status icon
