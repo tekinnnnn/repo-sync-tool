@@ -1,0 +1,22 @@
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Generated files
+repo-sync-standalone.sh
+
+# Configuration files created by users
+repo-sync.conf
+
+# Logs
+*.log
+
+# Test directories
+test-repo/
+testrepo/
