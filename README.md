@@ -70,7 +70,7 @@ The configuration is stored in the `repo-sync.conf` file in the same directory a
 - `REPO_BASE_PATH`: Base directory where your repositories are located
 - `REPOSITORIES`: List of repositories to sync by default (comma-separated)
 - `REMOTE_NAMES`: Git remote names in order of preference (comma-separated)
-- `DEFAULT_BRANCH`: Branch name to sync with (defaults to "master")
+- `DEFAULT_BRANCH`: Branch names to sync with (comma-separated alternatives, e.g., "master,main"). Will try each branch in order.
 - `SSH_CONNECTION`: SSH connection string for remote server (e.g., "rds" or "user@server")
 - `RUN_AFTER_PULL`: List of scripts to run after pulling from remote. Format: space-separated groups with comma-separated alternatives within groups (e.g., "sync,syncAll fire_webhook"). Leave empty to disable running scripts after pull
 - `MAX_CONNECT_ATTEMPTS`: Maximum number of connection attempts to remote server

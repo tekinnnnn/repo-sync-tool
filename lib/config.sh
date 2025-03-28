@@ -32,8 +32,8 @@ DEFAULT_REPOS=()
 # Remote names in order of preference
 DEFAULT_REMOTE_NAMES=("upstream" "origin")
 
-# Default branch name to sync with (default)
-DEFAULT_TARGET_BRANCH="master"
+# Default branch name to sync with (default, comma-separated alternatives)
+DEFAULT_TARGET_BRANCH="master,main"
 
 # Default SSH connection string for remote server
 DEFAULT_SSH_CONNECTION=""
@@ -91,6 +91,7 @@ load_config() {
         IFS=',' read -ra REMOTE_NAMES <<< "$value"
         ;;
       DEFAULT_BRANCH)
+        # Set as comma-separated list of branch alternatives
         DEFAULT_BRANCH="$value"
         ;;
       SSH_CONNECTION)

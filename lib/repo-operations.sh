@@ -516,19 +516,35 @@ sync_repo() {
   fi
   log_info "Current branch: $current_branch"
   
-  # Check if we're not on master branch and force_master is not enabled
-  if [ "$current_branch" != "$DEFAULT_BRANCH" ] && [ "$force_master" != "true" ]; then
-    log_warning "Not on $DEFAULT_BRANCH branch. Current branch: $current_branch"
+  # Get list of target branches from comma-separated alternatives
+  IFS=',' read -ra target_branches <<< "$DEFAULT_BRANCH"
+  
+  # Determine if we need to switch branches
+  local is_on_target_branch=false
+  local primary_branch="${target_branches[0]}"  # First branch is primary
+  
+  # Check if current branch is one of the target branches
+  for branch in "${target_branches[@]}"; do
+    if [ "$current_branch" = "$branch" ]; then
+      is_on_target_branch=true
+      log_info "On valid target branch: $branch"
+      break
+    fi
+  done
+  
+  # Check if we're not on any target branch and force_master is not enabled
+  if [ "$is_on_target_branch" = false ] && [ "$force_master" != "true" ]; then
+    log_warning "Not on any target branch ($DEFAULT_BRANCH). Current branch: $current_branch"
     log_warning "Skipping operations. Use --force-master to override."
     return $STATUS_SKIPPED
-  elif [ "$force_master" = "true" ] && [ "$current_branch" != "$DEFAULT_BRANCH" ]; then
-    log_info "Force-master enabled. Will checkout to $DEFAULT_BRANCH from remote."
+  elif [ "$force_master" = "true" ] && [ "$is_on_target_branch" = false ]; then
+    log_info "Force-master enabled. Will checkout to $primary_branch from remote."
     
-    # Switch to master branch
-    if ! switch_to_branch "$repo_path" "$DEFAULT_BRANCH" "$current_branch"; then
+    # Switch to primary branch
+    if ! switch_to_branch "$repo_path" "$primary_branch" "$current_branch"; then
       return $STATUS_ERROR
     fi
-    current_branch="$DEFAULT_BRANCH"
+    current_branch="$primary_branch"
   fi
   
   # Determine whether to run post-pull scripts
@@ -562,17 +578,17 @@ sync_repo() {
   fi
   
   # Switch to target branch (if needed)
-  if ! switch_to_branch "$repo_path" "$DEFAULT_BRANCH" "$current_branch"; then
+  if ! switch_to_branch "$repo_path" "$primary_branch" "$current_branch"; then
     # If branch switch failed, try to restore stash and return
     restore_stash "$repo_path"
     return $STATUS_ERROR
   fi
   
   # Pull latest changes
-  if ! pull_latest_changes "$repo_path" "$DEFAULT_BRANCH"; then
+  if ! pull_latest_changes "$repo_path" "$primary_branch"; then
     # If pull failed, try to restore stash and return to original branch
     restore_stash "$repo_path"
-    return_to_original_branch "$repo_path" "$current_branch" "$DEFAULT_BRANCH"
+    return_to_original_branch "$repo_path" "$current_branch" "$primary_branch"
     return $STATUS_ERROR
   fi
   
@@ -582,7 +598,7 @@ sync_repo() {
   fi
   
   # Return to original branch (if different)
-  if ! return_to_original_branch "$repo_path" "$current_branch" "$DEFAULT_BRANCH"; then
+  if ! return_to_original_branch "$repo_path" "$current_branch" "$primary_branch"; then
     return $STATUS_ERROR
   fi
   
