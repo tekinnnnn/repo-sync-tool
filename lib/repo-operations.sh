@@ -407,6 +407,19 @@ pull_latest_changes() {
   
   log_info "Pulling latest changes from $target_remote/$target_branch (with rebase)..."
   
+  # First fetch to ensure we have latest refs
+  fetch_result=$(git fetch $target_remote 2>&1)
+  fetch_status=$?
+  
+  if [ $fetch_status -ne 0 ]; then
+    log_error "Fetch operation failed!"
+    log_error "Git output: $fetch_result"
+    return 1
+  fi
+  
+  log_info "Fetch successful, now performing pull with rebase..."
+  
+  # Then perform pull with rebase
   pull_result=$(git pull --rebase $target_remote $target_branch 2>&1)
   pull_status=$?
   
