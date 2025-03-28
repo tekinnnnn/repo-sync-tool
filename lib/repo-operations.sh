@@ -127,7 +127,7 @@ run_post_pull_scripts() {
   
   # Check if there are any scripts to run
   if [ ${#RUN_AFTER_PULL[@]} -eq 0 ]; then
-    log_info "No post-pull scripts configured. Skipping."
+    log_info "No post-pull scripts configured. Skipping." 0
     return 0
   fi
   
@@ -138,7 +138,7 @@ run_post_pull_scripts() {
   
   # Process each script group (alternatives separated by commas)
   for script_group in "${RUN_AFTER_PULL[@]}"; do
-    log_info "Processing script group: $script_group"
+    log_info "Processing script group: $script_group" 0
     
     # Parse script alternatives - split comma-separated values
     IFS=',' read -ra script_alternatives <<< "$script_group"
@@ -150,18 +150,18 @@ run_post_pull_scripts() {
       script_name=$(echo "$script_name" | xargs)
       local script_path="./${script_name}"
       
-      log_info "Checking for script: $script_name"
+      log_info "Checking for script: $script_name" 0
       
       # Skip if script doesn't exist
       if [ ! -f "$script_path" ] || [ ! -x "$script_path" ]; then
-        log_info "Script '$script_name' not found or not executable. Trying next alternative."
+        log_info "Script '$script_name' not found or not executable. Trying next alternative." 1
         continue
       fi
       
       # We found an alternative that exists
       alternative_found=true
       script_executed=true
-      log_info "Executing $script_name script..."
+      log_info "Executing $script_name script..." 0
       
       # Record executed script
       if [ -z "$executed_scripts" ]; then
@@ -175,7 +175,7 @@ run_post_pull_scripts() {
       local script_status=$?
       
       if [ $script_status -eq 0 ]; then
-        log_success "$script_name executed successfully"
+        log_success "$script_name executed successfully" 
         
         # Show output based on verbosity level
         local output_lines=$(echo "$output" | wc -l)
@@ -259,7 +259,7 @@ check_unpushed_commits() {
   # Determine target remote
   local target_remote
   target_remote=$(determine_target_remote)
-  log_info "Using remote: $target_remote"
+  log_info "Using remote: $target_remote" 0
   
   local remote_branch="$target_remote/$current_branch"
   
@@ -405,7 +405,7 @@ pull_latest_changes() {
   local target_remote
   target_remote=$(determine_target_remote)
   
-  log_info "Pulling latest changes from $target_remote/$target_branch (with rebase)..."
+  log_info "Pulling latest changes from $target_remote/$target_branch (with rebase)..." 0
   
   # First fetch to ensure we have latest refs
   fetch_result=$(git fetch $target_remote 2>&1)
@@ -417,31 +417,31 @@ pull_latest_changes() {
     return 1
   fi
   
-  log_info "Fetch successful, now performing pull with rebase..."
+  log_info "Fetch successful, now performing pull with rebase..." 1
   
   # Debugging: Show what we're about to pull
   git_remote_info=$(git rev-parse --abbrev-ref @{upstream} 2>/dev/null || echo "No upstream branch set")
   git_local_sha=$(git rev-parse HEAD)
   git_remote_sha=$(git rev-parse $target_remote/$target_branch 2>/dev/null || echo "Cannot get remote SHA")
-  log_info "Current tracking: $git_remote_info"
-  log_info "Local SHA: $git_local_sha"
-  log_info "Remote SHA ($target_remote/$target_branch): $git_remote_sha"
+  log_info "Current tracking: $git_remote_info" 1
+  log_info "Local SHA: $git_local_sha" 1
+  log_info "Remote SHA ($target_remote/$target_branch): $git_remote_sha" 1
   
   # Check for actual differences between local and remote
-  log_info "Checking for differences between local and remote..."
+  log_info "Checking for differences between local and remote..." 1
   diff_result=$(git diff HEAD $target_remote/$target_branch --name-only)
   if [ -n "$diff_result" ]; then
-    log_info "Differences found, files to update:"
+    log_info "Differences found, files to update:" 1
     echo "$diff_result" | sed 's/^/  /'
   else
-    log_info "No file differences detected"
+    log_info "No file differences detected" 1
   fi
   
   # Force set upstream if needed
   git branch --set-upstream-to=$target_remote/$target_branch $target_branch
   
   # Perform pull with rebase strategy only
-  log_info "Attempting pull with rebase strategy..."
+  log_info "Attempting pull with rebase strategy..." 1
   pull_result=$(git pull --rebase $target_remote $target_branch 2>&1)
   pull_status=$?
   
@@ -451,7 +451,7 @@ pull_latest_changes() {
     return 1
   else
     if [[ "$pull_result" == *"Already up to date"* ]]; then
-      log_info "Repository already up to date, no changes pulled"
+      log_info "Repository already up to date, no changes pulled" 0
     else
       log_success "Successfully pulled latest changes"
       echo "${pull_result}" | grep -E "^ " | sed 's/^/  /'
@@ -530,7 +530,7 @@ sync_repo() {
   has_changes=false
   
   print_section_header "Syncing Repository: $repo_name"
-  log_info "Full path: $repo_path"
+  log_info "Full path: $repo_path" 1
   
   # Go to directory
   cd "$repo_path" || { 
@@ -549,7 +549,7 @@ sync_repo() {
   if [ $? -ne 0 ]; then
     return $STATUS_ERROR
   fi
-  log_info "Current branch: $current_branch"
+  log_info "Current branch: $current_branch" 0
   
   # Get list of target branches from comma-separated alternatives
   IFS=',' read -ra target_branches <<< "$DEFAULT_BRANCH"
@@ -562,7 +562,7 @@ sync_repo() {
   for branch in "${target_branches[@]}"; do
     if [ "$current_branch" = "$branch" ]; then
       is_on_target_branch=true
-      log_info "On valid target branch: $branch"
+      log_info "On valid target branch: $branch" 0
       break
     fi
   done
@@ -631,7 +631,7 @@ sync_repo() {
   
   # Execute post-pull scripts if enabled
   if [ "$should_run_scripts" = "true" ]; then
-    log_info "Running post-pull scripts..."
+    log_info "Running post-pull scripts..." 0
     if run_post_pull_scripts "$repo_path"; then
       log_success "Post-pull scripts completed successfully"
     else

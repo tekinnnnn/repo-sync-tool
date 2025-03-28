@@ -71,11 +71,13 @@ parse_arguments() {
     case $1 in
       -v|--verbose)
         verbosity=1
+        GLOBAL_VERBOSITY=1
         log_info "Verbose mode enabled (level 1)"
         shift
         ;;
       -vv|--very-verbose)
         verbosity=2
+        GLOBAL_VERBOSITY=2
         log_info "Very verbose mode enabled (level 2)"
         shift
         ;;

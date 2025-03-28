@@ -24,24 +24,36 @@ fi
 # Current log level (defaults to INFO)
 CURRENT_LOG_LEVEL=${CURRENT_LOG_LEVEL:-$LOG_LEVEL_INFO}
 
-# Print a formatted log message
+# Global verbosity level (0=default, 1=verbose, 2=very verbose)
+GLOBAL_VERBOSITY=${GLOBAL_VERBOSITY:-0}
+
+# Print a formatted log message with verbosity check
 # Arguments:
 #   $1 - Log level [INFO, SUCCESS, WARNING, ERROR]
 #   $2 - Log message
 #   $3 - Color code (optional)
+#   $4 - Minimum verbosity level required (optional, default 0)
 _log() {
   local level="$1"
   local message="$2"
   local color="${3:-$BLUE}"
+  local required_verbosity="${4:-0}"
   
-  echo -e "${color}[${level}]${NC} $message"
+  # Only print if global verbosity is >= required verbosity
+  # ERROR and WARNING messages are always shown regardless of verbosity
+  if [[ "$level" == "ERROR" || "$level" == "WARNING" || $GLOBAL_VERBOSITY -ge $required_verbosity ]]; then
+    echo -e "${color}[${level}]${NC} $message"
+  fi
 }
 
 # Log an informational message
 # Arguments:
 #   $1 - Message to log
+#   $2 - Minimum verbosity level required (optional, default 0)
 log_info() {
-  _log "INFO" "$1" "$BLUE"
+  local message="$1"
+  local required_verbosity="${2:-0}"
+  _log "INFO" "$message" "$BLUE" $required_verbosity
 }
 
 # Log a success message
