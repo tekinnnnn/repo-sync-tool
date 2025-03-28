@@ -440,7 +440,8 @@ pull_latest_changes() {
   # Force set upstream if needed
   git branch --set-upstream-to=$target_remote/$target_branch $target_branch
   
-  # Then perform pull with rebase
+  # Perform pull with rebase strategy only
+  log_info "Attempting pull with rebase strategy..."
   pull_result=$(git pull --rebase $target_remote $target_branch 2>&1)
   pull_status=$?
   
