@@ -590,18 +590,7 @@ sync_repo() {
     should_run_scripts="$sync_mode"
   fi
   
-  # Execute post-pull scripts if enabled and sync mode is enabled
-  if [ "$should_run_scripts" = "true" ]; then
-    log_info "Running post-pull scripts..."
-    if run_post_pull_scripts "$repo_path"; then
-      log_success "Post-pull scripts completed successfully"
-      return $STATUS_SUCCESS
-    else
-      log_error "Post-pull scripts execution failed"
-      return $STATUS_ERROR
-    fi
-  fi
-  
+  # Pull latest changes first
   # Check for unpushed commits
   if ! check_unpushed_commits "$repo_path" "$current_branch"; then
     return $STATUS_SKIPPED
@@ -639,6 +628,17 @@ sync_repo() {
   
   # Show the latest commit log
   show_latest_commit "$repo_path"
+  
+  # Execute post-pull scripts if enabled
+  if [ "$should_run_scripts" = "true" ]; then
+    log_info "Running post-pull scripts..."
+    if run_post_pull_scripts "$repo_path"; then
+      log_success "Post-pull scripts completed successfully"
+    else
+      log_error "Post-pull scripts execution failed"
+      return $STATUS_ERROR
+    fi
+  fi
   
   log_success "$repo_name successfully synced with remote"
   return $STATUS_SUCCESS
