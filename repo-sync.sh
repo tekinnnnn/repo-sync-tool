@@ -10,6 +10,9 @@ source "$SCRIPT_DIR/lib/logger.sh"
 source "$SCRIPT_DIR/lib/config.sh"
 source "$SCRIPT_DIR/lib/repo-operations.sh"
 
+# Initialize configuration
+initialize_config
+
 # Display help information
 # Arguments:
 #   None
@@ -364,6 +367,9 @@ prompt_string_interactive() {
   printf "%s [%s]: " "$prompt_message" "$default_value"
   read -r user_input
   
+  # Strip the prompt from user_input if it accidentally got included
+  user_input=$(echo "$user_input" | sed "s/^$prompt_message \[$default_value\]: //")
+  
   # Return user input or default value
   if [ -z "$user_input" ]; then
     echo "$default_value"
@@ -424,27 +430,43 @@ run_init_wizard() {
   
   echo "Step 3: Post-Pull Scripts"
   echo "These scripts will be run after pulling from the remote repository."
-  echo "Format: Each group is processed separately, with alternatives within a group."
-  echo "Example: 'sync syncAll, fire_webhook' means:"
+  echo "Format: Space-separated groups with comma-separated alternatives within each group."
+  echo "Example: 'sync,syncAll fire_webhook' means:"
   echo "  - First try 'sync' OR 'syncAll' (first one found will be executed)"
   echo "  - Then always try to run 'fire_webhook'"
+  echo "Enter script names separated by spaces (use commas for alternatives within a group)."
   echo "Leave empty to disable running scripts after pull."
-  local default_scripts=""
-  if [ ${#RUN_AFTER_PULL[@]} -gt 0 ]; then
-    default_scripts=$(printf "%s " "${RUN_AFTER_PULL[@]}")
+  
+  # Clear the array and read input directly for better control
+  RUN_AFTER_PULL=()
+  
+  # Get user input directly
+  printf "Scripts to run after pull [%s]: " "${DEFAULT_RUN_AFTER_PULL}"
+  read -r run_after_pull_input
+  
+  # If empty, use default
+  if [ -z "$run_after_pull_input" ]; then
+    run_after_pull_input="${DEFAULT_RUN_AFTER_PULL}"
   fi
-  local run_after_pull_input=$(prompt_string_interactive "Scripts to run after pull" "$default_scripts")
   
   # Tokenize by spaces to get script groups
   if [ -n "$run_after_pull_input" ]; then
-    # Split the input by spaces to get script groups
-    read -ra RUN_AFTER_PULL <<< "$run_after_pull_input"
+    # Use read with custom IFS to split by spaces
+    IFS=' ' read -ra script_groups <<< "$run_after_pull_input"
+    for group in "${script_groups[@]}"; do
+      # Only add non-empty groups
+      if [ -n "$group" ]; then
+        RUN_AFTER_PULL+=("$group")
+      fi
+    done
+    
     echo "Configured script execution groups:"
     for group in "${RUN_AFTER_PULL[@]}"; do
       echo "  - $group"
     done
   else
     RUN_AFTER_PULL=()
+    echo "No post-pull scripts configured."
   fi
   echo
   
