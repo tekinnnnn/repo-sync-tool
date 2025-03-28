@@ -14,16 +14,50 @@ A tool for synchronizing multiple git repositories at once.
 - Automatic git repository discovery and selection
 - Configurable sync behavior
 
-## Quick Start
+## Installation
 
-You can download and use the tool with a single command:
+### Option 1: Quick Install (Recommended)
+
+Install globally with a single command:
 
 ```bash
-# Download and make executable
-curl -o repo-sync.sh https://raw.githubusercontent.com/tekinnnnn/repo-sync-tool/main/repo-sync.sh && chmod +x repo-sync.sh
+# Download and run the installer
+curl -s https://raw.githubusercontent.com/tekinnnnn/repo-sync-tool/main/install.sh | bash
 
 # Run the initialization wizard
-./repo-sync.sh --init
+repo-sync --init
+```
+
+### Option 2: Manual Install
+
+You can also download and use the tool manually:
+
+```bash
+# Clone the repository
+git clone https://github.com/tekinnnnn/repo-sync-tool.git
+cd repo-sync-tool
+
+# Run the installer
+./install.sh
+
+# Run the initialization wizard
+repo-sync --init
+```
+
+### Option 3: Local Install
+
+If you prefer not to install globally:
+
+```bash
+# Clone the repository
+git clone https://github.com/tekinnnnn/repo-sync-tool.git
+cd repo-sync-tool
+
+# Create a local standalone script
+./install.sh --local
+
+# Run the initialization wizard
+./repo-sync-standalone.sh --init
 ```
 
 ## Requirements
@@ -65,7 +99,7 @@ curl -o repo-sync.sh https://raw.githubusercontent.com/tekinnnnn/repo-sync-tool/
 
 ## Configuration
 
-The configuration is stored in the `repo-sync.conf` file in the same directory as the script, and includes the following options:
+The configuration is stored in the `~/.repo-sync.conf` file in your home directory, and includes the following options:
 
 - `REPO_BASE_PATH`: Base directory where your repositories are located
 - `REPOSITORIES`: List of repositories to sync by default (comma-separated)
@@ -76,24 +110,30 @@ The configuration is stored in the `repo-sync.conf` file in the same directory a
 - `MAX_CONNECT_ATTEMPTS`: Maximum number of connection attempts to remote server
 - `CONNECT_RETRY_WAIT`: Seconds to wait between connection attempts
 
-This configuration can be easily set up using the configuration wizard by running `./repo-sync.sh --init`.
+This configuration can be easily set up using the configuration wizard by running `repo-sync --init` after installation.
 
-## Advanced Setup
+## Usage Examples
 
-If you want to make the script available system-wide:
+After installation, you can use the tool with the following commands:
 
 ```bash
-# Download the script
-curl -o repo-sync.sh https://raw.githubusercontent.com/tekinnnnn/repo-sync-tool/main/repo-sync.sh
+# Sync all configured repositories
+repo-sync
 
-# Make it executable
-chmod +x repo-sync.sh
+# Get help with available options
+repo-sync --help
 
-# Move to a directory in your PATH
-sudo mv repo-sync.sh /usr/local/bin/repo-sync
-
-# Run the initialization wizard
+# Run the initialization wizard (if you haven't already)
 repo-sync --init
+```
+
+## Upgrading
+
+To upgrade to the latest version:
+
+```bash
+# Download and run the installer again
+curl -s https://raw.githubusercontent.com/tekinnnnn/repo-sync-tool/main/install.sh | bash
 ```
 
 ## Project Structure
