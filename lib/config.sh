@@ -277,9 +277,14 @@ get_repo_name() {
 # Initialize configuration
 # This is called when the script is loaded
 initialize_config() {
-  # Try to load config from file, fall back to defaults if not found
-  if ! load_config; then
-    set_default_config
+  # Prevent multiple initializations
+  if [ -z "$CONFIG_INITIALIZED" ]; then
+    # Try to load config from file, fall back to defaults if not found
+    if ! load_config; then
+      set_default_config
+    fi
+    # Mark as initialized
+    CONFIG_INITIALIZED=true
   fi
 }
 
