@@ -41,7 +41,7 @@ DEFAULT_TARGET_BRANCH="master,main"
 DEFAULT_SSH_CONNECTION=""
 
 # Default run after pull scripts (comma-separated)
-DEFAULT_RUN_AFTER_PULL="sync,syncAll"
+DEFAULT_RUN_AFTER_PULL=""
 
 # Maximum number of attempts to connect to remote server (default)
 DEFAULT_MAX_CONNECT_ATTEMPTS=3
