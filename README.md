@@ -143,3 +143,23 @@ curl -s https://raw.githubusercontent.com/tekinnnnn/repo-sync-tool/main/install.
 - `lib/repo-operations.sh`: Repository operations
 - `lib/config.sh`: Configuration and constants
 - `repo-sync.conf`: User configuration (created with --init)
+- `test/`: Test directory containing validation tests
+- `Makefile`: Build and test automation
+
+## Testing
+
+The project includes a basic test suite to validate core functionality:
+
+```bash
+# Run all tests
+make test
+
+# Or run tests directly
+./test/test_runner.sh
+```
+
+The test suite validates:
+- Configuration loading and default values
+- Logger functionality and formatting
+- Main script structure and syntax
+- Core library functionality

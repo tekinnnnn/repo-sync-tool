@@ -20,3 +20,6 @@ repo-sync.conf
 # Test directories
 test-repo/
 testrepo/
+
+# Temporary test files
+/tmp/test_repo_sync_config_*
